@@ -1,0 +1,92 @@
+databaseChangeLog:
+  - changeSet:
+      id: healthcare-model
+      author: guigehling
+      changes:
+        - createTable:
+            tableName: institution
+            columns:
+              - column:
+                  name: id_institution
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(200)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: cnpj
+                  type: varchar(14)
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: exam
+            columns:
+              - column:
+                  name: id_exam
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: id_institution
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: patient_name
+                  type: varchar(200)
+              - column:
+                  name: patient_age
+                  type: varchar(200)
+              - column:
+                  name: patient_gender
+                  type: varchar(200)
+              - column:
+                  name: physician_name
+                  type: varchar(200)
+              - column:
+                  name: physician_crm
+                  type: varchar(30)
+              - column:
+                  name: procedure_name
+                  type: varchar(200)
+        - createTable:
+            tableName: wallet
+            columns:
+              - column:
+                  name: id_wallet
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: id_institution
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: coin
+                  type: numeric(12,2)
+  - changeSet:
+      id: healthcare-model-foreign-keys
+      author: guigehling
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: id_institution
+            baseTableName: exam
+            constraintName: fk_exam_healthcare_institution
+            referencedColumnNames: id_institution
+            referencedTableName: healthcare_institution
+        - addForeignKeyConstraint:
+            baseColumnNames: id_institution
+            baseTableName: wallet
+            constraintName: fk_wallet_institution
+            referencedColumnNames: id_institution
+            referencedTableName: institution
