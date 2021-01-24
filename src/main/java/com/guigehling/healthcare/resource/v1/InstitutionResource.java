@@ -20,8 +20,8 @@ public class InstitutionResource {
 
     @PostMapping
     @ResponseStatus(CREATED)
-    public InstitutionDTO create(@RequestBody @Valid InstitutionDTO agendaDTO) {
-        return null;
+    public InstitutionDTO create(@RequestBody @Valid InstitutionDTO institutionDTO) {
+        return institutionService.create(institutionDTO);
     }
 
 }
