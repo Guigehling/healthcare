@@ -7,12 +7,7 @@ import lombok.Getter;
 @Getter
 public enum ErrorCodeEnum {
 
-    ERROR_VOTE_SESSION_CLOSED("error.vote.session.closed"),
-    ERROR_VOTE_USER_VOTED("error.vote.user.has.voted"),
-    ERROR_VOTE_USER_UNABLE("error.vote.user.unable"),
-
-    ERROR_SESSION_OPEN("error.session.open"),
-    ERROR_SESSION_CLOSE("error.session.close");
+    ERROR_INSTITUTION_CREATE("error.institution.create");
 
     private final String messageKey;
 }
