@@ -46,7 +46,7 @@ databaseChangeLog:
                   type: varchar(200)
               - column:
                   name: patient_gender
-                  type: varchar(200)
+                  type: varchar(12)
               - column:
                   name: physician_name
                   type: varchar(200)
@@ -83,7 +83,7 @@ databaseChangeLog:
             baseTableName: exam
             constraintName: fk_exam_healthcare_institution
             referencedColumnNames: id_institution
-            referencedTableName: healthcare_institution
+            referencedTableName: institution
         - addForeignKeyConstraint:
             baseColumnNames: id_institution
             baseTableName: wallet
