@@ -43,10 +43,10 @@ databaseChangeLog:
                   type: varchar(200)
               - column:
                   name: patient_age
-                  type: varchar(200)
+                  type: int
               - column:
                   name: patient_gender
-                  type: varchar(12)
+                  type: varchar(1)
               - column:
                   name: physician_name
                   type: varchar(200)
@@ -56,6 +56,9 @@ databaseChangeLog:
               - column:
                   name: procedure_name
                   type: varchar(200)
+              - column:
+                  name: consulted
+                  type: bit
         - createTable:
             tableName: wallet
             columns:

@@ -2,6 +2,7 @@ package com.guigehling.healthcare.dto;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import com.guigehling.healthcare.enumeration.GenderTypeEnum;
 import com.sun.istack.NotNull;
 import lombok.Builder;
 import lombok.Value;
@@ -19,13 +20,11 @@ public class ExamDTO {
     Long idExam;
     @Positive
     Long idInstitution;
-
     @NotNull
     @NotBlank
     String patientName;
-
-    String patientAge;
-    String patientGender;
+    Integer patientAge;
+    GenderTypeEnum patientGender;
     String physicianName;
     String physicianCrm;
     String procedureName;

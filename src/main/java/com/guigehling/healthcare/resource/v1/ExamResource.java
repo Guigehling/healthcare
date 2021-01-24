@@ -1,0 +1,29 @@
+package com.guigehling.healthcare.resource.v1;
+
+import com.guigehling.healthcare.dto.ExamDTO;
+import com.guigehling.healthcare.service.ExamService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+
+import static org.springframework.http.HttpStatus.CREATED;
+
+@Validated
+@RestController
+@RequestMapping("/v1/exam")
+@RequiredArgsConstructor
+public class ExamResource {
+
+    private final ExamService examService;
+
+    @PostMapping
+    @ResponseStatus(CREATED)
+    public ExamDTO create(@RequestBody @Valid ExamDTO examDTO) {
+        return examService.create(examDTO);
+    }
+
+}
+
+
