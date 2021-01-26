@@ -7,7 +7,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import javax.websocket.server.PathParam;
+import javax.validation.constraints.Positive;
 
 import static org.springframework.http.HttpStatus.CREATED;
 
@@ -25,8 +25,8 @@ public class ExamResource {
         return examService.create(accessKey, examDTO);
     }
 
-    @GetMapping
-    public ExamDTO findById(@RequestHeader String accessKey, @PathParam("idExam") Long idExam) {
+    @GetMapping("/{idExam}")
+    public ExamDTO findById(@RequestHeader String accessKey, @PathVariable("idExam") @Positive Long idExam) {
         return examService.findById(accessKey, idExam);
     }
 

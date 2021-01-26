@@ -1,7 +1,6 @@
 package com.guigehling.healthcare.service;
 
 import com.guigehling.healthcare.dto.ExamDTO;
-import com.guigehling.healthcare.dto.InstitutionDTO;
 import com.guigehling.healthcare.dto.WalletDTO;
 import com.guigehling.healthcare.exception.BusinessException;
 import com.guigehling.healthcare.helper.MessageHelper;
@@ -34,25 +33,23 @@ public class ExamService {
     private final MessageHelper messageHelper;
 
     public ExamDTO create(String accessKey, ExamDTO examDTO) {
-        var institutionDTO = getInstitutionByAcessKey(accessKey);
-        var walletDTO = walletService.getWalletByInstitution(institutionDTO.getIdInstitution());
+        var idInstitution = getInstitutionByAcessKey(accessKey);
+        var walletDTO = walletService.getWalletByInstitution(idInstitution);
 
         if (!hasEnoughBalance(walletDTO))
-            throw new BusinessException(BAD_REQUEST,
-                    messageHelper.get(ERROR_EXAM_CREATE_INSUFFICIENT_FUNDS, String.valueOf(examDTO.getIdInstitution())));
+            throw new BusinessException(BAD_REQUEST, messageHelper.get(ERROR_EXAM_CREATE_INSUFFICIENT_FUNDS));
 
-        var exam = examRepository.save(newExamBuilder(examDTO));
+        var exam = examRepository.save(newExamBuilder(examDTO.withIdInstitution(idInstitution)));
         chargeExamCreationFee(walletDTO);
 
         return examDTOBuilder(exam);
     }
 
     public ExamDTO findById(String accessKey, Long idExam) {
-        var institutionDTO = getInstitutionByAcessKey(accessKey);
-        var examOpt = examRepository.findById(idExam);
+        var idInstitution = getInstitutionByAcessKey(accessKey);
+        var examOpt = examRepository.findByIdExamAndIdInstitution(idExam, idInstitution);
 
-        if (examOpt.isPresent()
-                && examOpt.get().getIdInstitution().equals(institutionDTO.getIdInstitution()))
+        if (examOpt.isPresent())
             return examDTOBuilder(examOpt.get());
 
         throw new BusinessException(NOT_FOUND, messageHelper.get(ERROR_EXAM_FIND_BY_ID, String.valueOf(idExam)));
@@ -66,8 +63,8 @@ public class ExamService {
         walletService.update(walletDTO.withCoin(walletDTO.getCoin().subtract(EXAM_COST)));
     }
 
-    private InstitutionDTO getInstitutionByAcessKey(String accessKey) {
-        return institutionService.findByAccessKey(accessKey);
+    private Long getInstitutionByAcessKey(String accessKey) {
+        return institutionService.findByAccessKey(accessKey).getIdInstitution();
     }
 
 }
