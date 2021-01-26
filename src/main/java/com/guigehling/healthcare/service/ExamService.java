@@ -25,12 +25,14 @@ public class ExamService {
 
     private final ExamRepository examRepository;
 
+    private final InstitutionService institutionService;
     private final WalletService walletService;
 
     private final MessageHelper messageHelper;
 
-    public ExamDTO create(ExamDTO examDTO) {
-        var walletDTO = walletService.getWalletByInstitution(examDTO.getIdInstitution());
+    public ExamDTO create(String accessKey, ExamDTO examDTO) {
+        var institutionDTO = institutionService.findByAccessKey(accessKey);
+        var walletDTO = walletService.getWalletByInstitution(institutionDTO.getIdInstitution());
 
         if (!hasEnoughBalance(walletDTO))
             throw new BusinessException(BAD_REQUEST,

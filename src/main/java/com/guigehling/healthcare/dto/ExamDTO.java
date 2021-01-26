@@ -9,7 +9,6 @@ import lombok.Value;
 import lombok.With;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Positive;
 
 @With
 @Value
@@ -18,7 +17,6 @@ import javax.validation.constraints.Positive;
 public class ExamDTO {
 
     Long idExam;
-    @Positive
     Long idInstitution;
     @NotNull
     @NotBlank

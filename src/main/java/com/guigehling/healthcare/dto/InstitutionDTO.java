@@ -17,13 +17,12 @@ import javax.validation.constraints.NotBlank;
 public class InstitutionDTO {
 
     Long idInstitution;
-
     @NotNull
     @NotBlank
     String name;
-
     @CNPJ
     String cnpj;
+    String accessKey;
 
     @JsonPOJOBuilder(withPrefix = "")
     public static class JacksonBuilder {

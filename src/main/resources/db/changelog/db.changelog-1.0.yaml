@@ -23,6 +23,9 @@ databaseChangeLog:
                   type: varchar(14)
                   constraints:
                     nullable: false
+              - column:
+                  name: access_key
+                  type: varchar(250)
         - createTable:
             tableName: exam
             columns:
@@ -93,3 +96,6 @@ databaseChangeLog:
             constraintName: fk_wallet_institution
             referencedColumnNames: id_institution
             referencedTableName: institution
+        - addUniqueConstraint:
+            columnNames: cnpj
+            tableName: institution

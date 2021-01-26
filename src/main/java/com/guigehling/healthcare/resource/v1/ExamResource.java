@@ -20,8 +20,8 @@ public class ExamResource {
 
     @PostMapping
     @ResponseStatus(CREATED)
-    public ExamDTO create(@RequestBody @Valid ExamDTO examDTO) {
-        return examService.create(examDTO);
+    public ExamDTO create(@RequestHeader String accessKey, @RequestBody @Valid ExamDTO examDTO) {
+        return examService.create(accessKey, examDTO);
     }
 
 }

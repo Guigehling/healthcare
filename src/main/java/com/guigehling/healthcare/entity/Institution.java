@@ -24,5 +24,6 @@ public class Institution {
     private String name;
     @CNPJ
     private String cnpj;
+    private String accessKey;
 
 }
