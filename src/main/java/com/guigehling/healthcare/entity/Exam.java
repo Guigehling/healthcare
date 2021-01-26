@@ -1,13 +1,12 @@
 package com.guigehling.healthcare.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.guigehling.healthcare.enumeration.GenderTypeEnum;
+import lombok.*;
 
 import javax.persistence.*;
 
-@Data
+@With
+@Getter
 @Entity
 @Builder
 @AllArgsConstructor
@@ -20,10 +19,12 @@ public class Exam {
     private Long idExam;
     private Long idInstitution;
     private String patientName;
-    private String patientAge;
-    private String patientGender;
+    private Integer patientAge;
+    @Enumerated(EnumType.STRING)
+    private GenderTypeEnum patientGender;
     private String physicianName;
     private String physicianCrm;
     private String procedureName;
+    private boolean consulted;
 
 }
