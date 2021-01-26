@@ -2,6 +2,7 @@ package com.guigehling.healthcare.service;
 
 import com.guigehling.healthcare.dto.ExamDTO;
 import com.guigehling.healthcare.dto.WalletDTO;
+import com.guigehling.healthcare.entity.Exam;
 import com.guigehling.healthcare.exception.BusinessException;
 import com.guigehling.healthcare.helper.MessageHelper;
 import com.guigehling.healthcare.repository.ExamRepository;
@@ -10,11 +11,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.Map;
 
 import static com.guigehling.healthcare.enumeration.ErrorCodeEnum.ERROR_EXAM_CREATE_INSUFFICIENT_FUNDS;
 import static com.guigehling.healthcare.enumeration.ErrorCodeEnum.ERROR_EXAM_FIND_BY_ID;
 import static com.guigehling.healthcare.helper.BuilderHelper.examDTOBuilder;
 import static com.guigehling.healthcare.helper.BuilderHelper.newExamBuilder;
+import static java.lang.Boolean.TRUE;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
@@ -53,6 +57,39 @@ public class ExamService {
             return examDTOBuilder(examOpt.get());
 
         throw new BusinessException(NOT_FOUND, messageHelper.get(ERROR_EXAM_FIND_BY_ID, String.valueOf(idExam)));
+    }
+
+    public ExamDTO update(String accessKey, ExamDTO examDTO) {
+        var idInstitution = getInstitutionByAcessKey(accessKey);
+        var examOpt = examRepository.findByIdExamAndIdInstitution(examDTO.getIdExam(), idInstitution);
+
+        if (examOpt.isEmpty())
+            throw new BusinessException(NOT_FOUND);
+
+        var exam = examRepository.save(Exam.builder()
+                .idExam(examOpt.get().getIdExam())
+                .idInstitution(idInstitution)
+                .patientAge(examDTO.getPatientAge())
+                .patientName(examDTO.getPatientName())
+                .patientGender(examDTO.getPatientGender())
+                .physicianName(examDTO.getPhysicianName())
+                .physicianCrm(examDTO.getPhysicianCrm())
+                .procedureName(examDTO.getProcedureName())
+                .consulted(examOpt.get().isConsulted())
+                .build());
+
+        return examDTOBuilder(exam);
+    }
+
+    public Map<String, Boolean> delete(String accessKey, Long idExam) {
+        var idInstitution = getInstitutionByAcessKey(accessKey);
+        var examOpt = examRepository.findByIdExamAndIdInstitution(idExam, idInstitution);
+
+        if (examOpt.isEmpty())
+            throw new BusinessException(NOT_FOUND);
+
+        examRepository.delete(examOpt.get());
+        return Collections.singletonMap("deleted", TRUE);
     }
 
     private boolean hasEnoughBalance(WalletDTO walletDTO) {
