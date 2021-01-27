@@ -14,8 +14,7 @@ import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.Map;
 
-import static com.guigehling.healthcare.enumeration.ErrorCodeEnum.ERROR_EXAM_CREATE_INSUFFICIENT_FUNDS;
-import static com.guigehling.healthcare.enumeration.ErrorCodeEnum.ERROR_EXAM_FIND_BY_ID;
+import static com.guigehling.healthcare.enumeration.ErrorCodeEnum.*;
 import static com.guigehling.healthcare.helper.BuilderHelper.examDTOBuilder;
 import static com.guigehling.healthcare.helper.BuilderHelper.newExamBuilder;
 import static java.lang.Boolean.TRUE;
@@ -40,11 +39,11 @@ public class ExamService {
         var idInstitution = getInstitutionByAcessKey(accessKey);
         var walletDTO = walletService.getWalletByInstitution(idInstitution);
 
-        if (!hasEnoughBalance(walletDTO))
+        if (hasInsufficientBalance(walletDTO))
             throw new BusinessException(BAD_REQUEST, messageHelper.get(ERROR_EXAM_CREATE_INSUFFICIENT_FUNDS));
 
         var exam = examRepository.save(newExamBuilder(examDTO.withIdInstitution(idInstitution)));
-        chargeExamCreationFee(walletDTO);
+        chargeExam(walletDTO);
 
         return examDTOBuilder(exam);
     }
@@ -52,11 +51,15 @@ public class ExamService {
     public ExamDTO findById(String accessKey, Long idExam) {
         var idInstitution = getInstitutionByAcessKey(accessKey);
         var examOpt = examRepository.findByIdExamAndIdInstitution(idExam, idInstitution);
+        var walletDTO = walletService.getWalletByInstitution(idInstitution);
 
-        if (examOpt.isPresent())
-            return examDTOBuilder(examOpt.get());
+        if (examOpt.isEmpty())
+            throw new BusinessException(NOT_FOUND, messageHelper.get(ERROR_EXAM_FIND_BY_ID, String.valueOf(idExam)));
 
-        throw new BusinessException(NOT_FOUND, messageHelper.get(ERROR_EXAM_FIND_BY_ID, String.valueOf(idExam)));
+        if (!examOpt.get().isConsulted())
+            chargeExamAccessed(walletDTO);
+
+        return examDTOBuilder(examRepository.save(examOpt.get().withConsulted(true)));
     }
 
     public ExamDTO update(String accessKey, ExamDTO examDTO) {
@@ -64,7 +67,7 @@ public class ExamService {
         var examOpt = examRepository.findByIdExamAndIdInstitution(examDTO.getIdExam(), idInstitution);
 
         if (examOpt.isEmpty())
-            throw new BusinessException(NOT_FOUND);
+            throw new BusinessException(NOT_FOUND, messageHelper.get(ERROR_EXAM_FIND_BY_ID, String.valueOf(examDTO.getIdExam())));
 
         var exam = examRepository.save(Exam.builder()
                 .idExam(examOpt.get().getIdExam())
@@ -86,17 +89,24 @@ public class ExamService {
         var examOpt = examRepository.findByIdExamAndIdInstitution(idExam, idInstitution);
 
         if (examOpt.isEmpty())
-            throw new BusinessException(NOT_FOUND);
+            throw new BusinessException(NOT_FOUND, messageHelper.get(ERROR_EXAM_FIND_BY_ID, String.valueOf(idExam)));
 
         examRepository.delete(examOpt.get());
         return Collections.singletonMap("deleted", TRUE);
     }
 
-    private boolean hasEnoughBalance(WalletDTO walletDTO) {
-        return walletDTO.getCoin().compareTo(EXAM_COST) >= 0;
+    private boolean hasInsufficientBalance(WalletDTO walletDTO) {
+        return walletDTO.getCoin().compareTo(EXAM_COST) < 0;
     }
 
-    private void chargeExamCreationFee(WalletDTO walletDTO) {
+    private void chargeExamAccessed(WalletDTO walletDTO) {
+        if (hasInsufficientBalance(walletDTO))
+            throw new BusinessException(BAD_REQUEST, messageHelper.get(ERROR_EXAM_FIND_INSUFFICIENT_FUNDS));
+
+        chargeExam(walletDTO);
+    }
+
+    private void chargeExam(WalletDTO walletDTO) {
         walletService.update(walletDTO.withCoin(walletDTO.getCoin().subtract(EXAM_COST)));
     }
 

@@ -26,9 +26,9 @@ public class WalletService {
 
     private final MessageHelper messageHelper;
 
-    public Long create(Long idInstitution) {
+    public WalletDTO create(Long idInstitution) {
         var wallet = walletRepository.save(walletBuilder(idInstitution, STARTING_COINS));
-        return wallet.getIdWallet();
+        return walletDTOBuilder(wallet);
     }
 
     public WalletDTO update(WalletDTO walletDTO) {

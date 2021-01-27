@@ -24,6 +24,11 @@ public class InstitutionResource {
         return institutionService.create(institutionDTO);
     }
 
+    @GetMapping
+    public InstitutionDTO create(@RequestHeader String accessKey) {
+        return institutionService.findInstitution(accessKey);
+    }
+
 }
 
 

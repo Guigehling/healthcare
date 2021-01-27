@@ -29,18 +29,26 @@ public class InstitutionService {
 
     public InstitutionDTO create(InstitutionDTO institutionDTO) {
         try {
-            var institutionWithKey = institutionDTO
-                    .withAccessKey(generateAccessKey(institutionDTO.getCnpj()));
+            var institution = institutionRepository.save(institutionBuilder(institutionDTO));
+            var walletDTO = walletService.create(institution.getIdInstitution());
 
-            var institution = institutionRepository.save(institutionBuilder(institutionWithKey));
-
-            walletService.create(institution.getIdInstitution());
-
-            return institutionWithKey.withIdInstitution(institution.getIdInstitution());
+            return institutionDTO
+                    .withIdInstitution(institution.getIdInstitution())
+                    .withAccessKey(generateAccessKey(institutionDTO.getCnpj()))
+                    .withCoin(walletDTO.getCoin());
         } catch (Exception e) {
             log.error(messageHelper.get(ERROR_INSTITUTION_CREATE, e.getMessage()), e);
             throw new BusinessException(INTERNAL_SERVER_ERROR, messageHelper.get(ERROR_INSTITUTION_CREATE, e.getMessage()));
         }
+    }
+
+    public InstitutionDTO findInstitution(String accessKey) {
+        var institutionDTO = findByAccessKey(accessKey);
+        var walletDTO = walletService.getWalletByInstitution(institutionDTO.getIdInstitution());
+
+        return institutionDTO
+                .withAccessKey(accessKey)
+                .withCoin(walletDTO.getCoin());
     }
 
     public InstitutionDTO findByAccessKey(String accessKey) {
