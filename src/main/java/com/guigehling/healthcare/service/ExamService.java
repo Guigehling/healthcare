@@ -95,18 +95,18 @@ public class ExamService {
         return Collections.singletonMap("deleted", TRUE);
     }
 
-    private boolean hasInsufficientBalance(WalletDTO walletDTO) {
+    public boolean hasInsufficientBalance(WalletDTO walletDTO) {
         return walletDTO.getCoin().compareTo(EXAM_COST) < 0;
     }
 
-    private void chargeExamAccessed(WalletDTO walletDTO) {
+    public void chargeExamAccessed(WalletDTO walletDTO) {
         if (hasInsufficientBalance(walletDTO))
             throw new BusinessException(BAD_REQUEST, messageHelper.get(ERROR_EXAM_FIND_INSUFFICIENT_FUNDS));
 
         chargeExam(walletDTO);
     }
 
-    private void chargeExam(WalletDTO walletDTO) {
+    public void chargeExam(WalletDTO walletDTO) {
         walletService.update(walletDTO.withCoin(walletDTO.getCoin().subtract(EXAM_COST)));
     }
 

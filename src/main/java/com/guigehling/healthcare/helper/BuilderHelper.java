@@ -15,7 +15,6 @@ public class BuilderHelper {
         return Institution.builder()
                 .name(institutionDTO.getName())
                 .cnpj(institutionDTO.getCnpj())
-//                .accessKey(institutionDTO.getAccessKey())
                 .build();
     }
 
