@@ -23,9 +23,6 @@ databaseChangeLog:
                   type: varchar(14)
                   constraints:
                     nullable: false
-#              - column:
-#                  name: access_key
-#                  type: varchar(250)
         - createTable:
             tableName: exam
             columns:

@@ -60,11 +60,11 @@ public class InstitutionService {
         throw new BusinessException(NOT_FOUND, messageHelper.get(ERROR_INSTITUTION_FIND_BY_ACCESS_KEY));
     }
 
-    private static String generateAccessKey(String cnpj) {
+    public String generateAccessKey(String cnpj) {
         return new String(Base64.encodeBase64(cnpj.getBytes()));
     }
 
-    private static String decodeAccessKey(String cnpj) {
+    public String decodeAccessKey(String cnpj) {
         return new String(Base64.decodeBase64(cnpj.getBytes()));
     }
 }
