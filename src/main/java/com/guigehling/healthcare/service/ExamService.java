@@ -2,6 +2,7 @@ package com.guigehling.healthcare.service;
 
 import com.guigehling.healthcare.dto.ExamDTO;
 import com.guigehling.healthcare.dto.WalletDTO;
+import com.guigehling.healthcare.entity.Exam;
 import com.guigehling.healthcare.exception.BusinessException;
 import com.guigehling.healthcare.helper.MessageHelper;
 import com.guigehling.healthcare.repository.ExamRepository;
@@ -10,11 +11,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.Map;
 
-import static com.guigehling.healthcare.enumeration.ErrorCodeEnum.ERROR_EXAM_CREATE_INSUFFICIENT_FUNDS;
-import static com.guigehling.healthcare.enumeration.ErrorCodeEnum.ERROR_EXAM_FIND_BY_ID;
+import static com.guigehling.healthcare.enumeration.ErrorCodeEnum.*;
 import static com.guigehling.healthcare.helper.BuilderHelper.examDTOBuilder;
 import static com.guigehling.healthcare.helper.BuilderHelper.newExamBuilder;
+import static java.lang.Boolean.TRUE;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
@@ -36,11 +39,11 @@ public class ExamService {
         var idInstitution = getInstitutionByAcessKey(accessKey);
         var walletDTO = walletService.getWalletByInstitution(idInstitution);
 
-        if (!hasEnoughBalance(walletDTO))
+        if (hasInsufficientBalance(walletDTO))
             throw new BusinessException(BAD_REQUEST, messageHelper.get(ERROR_EXAM_CREATE_INSUFFICIENT_FUNDS));
 
         var exam = examRepository.save(newExamBuilder(examDTO.withIdInstitution(idInstitution)));
-        chargeExamCreationFee(walletDTO);
+        chargeExam(walletDTO);
 
         return examDTOBuilder(exam);
     }
@@ -48,18 +51,62 @@ public class ExamService {
     public ExamDTO findById(String accessKey, Long idExam) {
         var idInstitution = getInstitutionByAcessKey(accessKey);
         var examOpt = examRepository.findByIdExamAndIdInstitution(idExam, idInstitution);
+        var walletDTO = walletService.getWalletByInstitution(idInstitution);
 
-        if (examOpt.isPresent())
-            return examDTOBuilder(examOpt.get());
+        if (examOpt.isEmpty())
+            throw new BusinessException(NOT_FOUND, messageHelper.get(ERROR_EXAM_FIND_BY_ID, String.valueOf(idExam)));
 
-        throw new BusinessException(NOT_FOUND, messageHelper.get(ERROR_EXAM_FIND_BY_ID, String.valueOf(idExam)));
+        if (!examOpt.get().isConsulted())
+            chargeExamAccessed(walletDTO);
+
+        return examDTOBuilder(examRepository.save(examOpt.get().withConsulted(true)));
     }
 
-    private boolean hasEnoughBalance(WalletDTO walletDTO) {
-        return walletDTO.getCoin().compareTo(EXAM_COST) >= 0;
+    public ExamDTO update(String accessKey, ExamDTO examDTO) {
+        var idInstitution = getInstitutionByAcessKey(accessKey);
+        var examOpt = examRepository.findByIdExamAndIdInstitution(examDTO.getIdExam(), idInstitution);
+
+        if (examOpt.isEmpty())
+            throw new BusinessException(NOT_FOUND, messageHelper.get(ERROR_EXAM_FIND_BY_ID, String.valueOf(examDTO.getIdExam())));
+
+        var exam = examRepository.save(Exam.builder()
+                .idExam(examOpt.get().getIdExam())
+                .idInstitution(idInstitution)
+                .patientAge(examDTO.getPatientAge())
+                .patientName(examDTO.getPatientName())
+                .patientGender(examDTO.getPatientGender())
+                .physicianName(examDTO.getPhysicianName())
+                .physicianCrm(examDTO.getPhysicianCrm())
+                .procedureName(examDTO.getProcedureName())
+                .consulted(examOpt.get().isConsulted())
+                .build());
+
+        return examDTOBuilder(exam);
     }
 
-    private void chargeExamCreationFee(WalletDTO walletDTO) {
+    public Map<String, Boolean> delete(String accessKey, Long idExam) {
+        var idInstitution = getInstitutionByAcessKey(accessKey);
+        var examOpt = examRepository.findByIdExamAndIdInstitution(idExam, idInstitution);
+
+        if (examOpt.isEmpty())
+            throw new BusinessException(NOT_FOUND, messageHelper.get(ERROR_EXAM_FIND_BY_ID, String.valueOf(idExam)));
+
+        examRepository.delete(examOpt.get());
+        return Collections.singletonMap("deleted", TRUE);
+    }
+
+    private boolean hasInsufficientBalance(WalletDTO walletDTO) {
+        return walletDTO.getCoin().compareTo(EXAM_COST) < 0;
+    }
+
+    private void chargeExamAccessed(WalletDTO walletDTO) {
+        if (hasInsufficientBalance(walletDTO))
+            throw new BusinessException(BAD_REQUEST, messageHelper.get(ERROR_EXAM_FIND_INSUFFICIENT_FUNDS));
+
+        chargeExam(walletDTO);
+    }
+
+    private void chargeExam(WalletDTO walletDTO) {
         walletService.update(walletDTO.withCoin(walletDTO.getCoin().subtract(EXAM_COST)));
     }
 

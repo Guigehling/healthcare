@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
+import java.util.Map;
 
 import static org.springframework.http.HttpStatus.CREATED;
 
@@ -28,6 +29,16 @@ public class ExamResource {
     @GetMapping("/{idExam}")
     public ExamDTO findById(@RequestHeader String accessKey, @PathVariable("idExam") @Positive Long idExam) {
         return examService.findById(accessKey, idExam);
+    }
+
+    @PutMapping
+    public ExamDTO update(@RequestHeader String accessKey, @RequestBody @Valid ExamDTO examDTO) {
+        return examService.update(accessKey, examDTO);
+    }
+
+    @DeleteMapping("/{idExam}")
+    public Map<String, Boolean> delete(@RequestHeader String accessKey, @PathVariable("idExam") @Positive Long idExam) {
+        return examService.delete(accessKey, idExam);
     }
 
 }

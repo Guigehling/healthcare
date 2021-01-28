@@ -1,5 +1,6 @@
 package com.guigehling.healthcare.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.sun.istack.NotNull;
@@ -9,6 +10,7 @@ import lombok.With;
 import org.hibernate.validator.constraints.br.CNPJ;
 
 import javax.validation.constraints.NotBlank;
+import java.math.BigDecimal;
 
 @With
 @Value
@@ -16,6 +18,7 @@ import javax.validation.constraints.NotBlank;
 @Builder(builderClassName = "JacksonBuilder")
 public class InstitutionDTO {
 
+    @JsonIgnore
     Long idInstitution;
     @NotNull
     @NotBlank
@@ -23,6 +26,7 @@ public class InstitutionDTO {
     @CNPJ
     String cnpj;
     String accessKey;
+    BigDecimal coin;
 
     @JsonPOJOBuilder(withPrefix = "")
     public static class JacksonBuilder {
