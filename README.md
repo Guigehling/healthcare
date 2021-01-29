@@ -1,62 +1,42 @@
-# Voting-API
-> Serviço voltado para a gestão de pautas e suas seções de votação.
+# Healthcare-App
+> Service aimed at managing health institutions and their exams.
 
 [![Java Version][java-image]][npm-url]
 [![spring Version][spring-image]][travis-url]
 
-Esta API executa a gestão de pautas as quais possuem por um período de votação chamado de sessão. Cada sessão possui uma data de início e fim.
+This API performs the creation of institutions and allows the management of your exams.
 
-Além de gerir as pautas e a duração das sessões, esta API também controla os votos recebidos, executando validações dos dados do votante e da sessão de votação.
-
+Each new institution generated receives an access key, which will give you permission to perform the management of your exams.
 ![](header.png)
 
-## Casos de Uso
-
-Esta API pode ser usada para gerir votos em variadas situações, como por exemplo, gerir votos de associados de uma empresa em determinado assunto.
-
-## Setup de Desenvolvimento
+## Development Setup
 
 ### Maven
-Para executar esta aplicação primeiramente realize a complicação do projeto com o Maven usando o segunte comando.
+To build this application, first perform the project complication with Maven using the following command.
 
 ```sh
 mvn install
 ```
-### Banco Relacional
-A aplicação utiliza um banco de dados SQLServer para gravação das informações, o banco foi disponibilizado na AWS, logo, não é necessário subir um banco de dados local.
+### Database
+The application uses a SQLServer database to record information, the database was made available on AWS, so there is no need to upload a local database.
 
-Para versionamento da estrutura de banco de dados foi utilizado o Liquibase, então caso queira recriar as estruturas basta alterar a propriedade abaixo para **TRUE** no arquivo application.properties
-
+Liquibase was used for versioning the database structure, so if you want to recreate the structures just change the property below to ** TRUE ** in the application.properties file.
 ```sh
 spring.liquibase.drop-first: true
 ```
-### Menssageria
-Foi utilizado o RabbitMQ como nosso message-broker, para facilitar na utilização por terceiros, foi utilizado um serviço gratuito que disponibiliza uma instância do RabbitMQ online. 
 
-Você pode acessar este serviço em https://www.cloudamqp.com/
+### Documentation (Swagger)
 
-### Documentação (Swagger)
-
-A documentação dos serviços desta API estão disponiveis em uma pagina com o swagger da mesma, para acesso primerio é necessario subir a aplicação e em seguida acessar o link http://localhost:8081/api/voting/swagger-ui/
+The documentation of the services of this API are available on a page with the swagger of it, for first access it is necessary to upload the application and then access the link http://localhost:8080/api/healthcare/swagger-ui/
 
 ## Releases
 
 * 0.0.1-SNAPSHOT
-    * Commit inicial, contendo o esboço do projeto.
-* 0.0.2-SNAPSHOT
-    * Lançamento da primeira versão do projeto contendo todas as funcionalidades básicas.
-    * Esta versão ainda necessida de ajustes, como citados nos próximos passos.
+    * Initial version of the project
 
-## Próximos Passos
+## Next steps
 
-Algumas evoluções desejadas para as próximas versões:
-
-* Utilizar o RabbitMQ em um servidor que permita a instalação de plugins
-
-* Com o novo RabbitMQ modificar o método de enfileiramento para usar o x-delay.
-
-* Incluir testes de performance.
-
+* Use a JWT token to manage access to exams.
 
 <!-- Markdown link & img dfn's -->
 [java-image]: https://img.shields.io/badge/java-v14-orange
